@@ -1,29 +1,25 @@
 import React from "react";
 
 
-const Job = (props) => {
+const ProjectDesc = (props) => {
 
     return (
         <div className={props.className}>
-            <label>Company Name:</label>
+            <label>Project Title: </label>
             <br/>
-            <input onChange={props.companyHandler} defaultValue={props.defVal.company}/>
-            <br/>
-            <br/>
-            <label>Job Title: </label>
-            <br/>
-            <input onChange={props.positionHandler} defaultValue={props.defVal.position}/>
+            <input onChange={props.titleHandler} defaultValue={props.defVal.title}/>
             <br/>
             <br/>
-            <label>Job Description: </label>
+            <label>Project Description: </label>
             <br/>
             <textarea className="description" onChange={props.descriptionHandler} defaultValue={props.defVal.description}></textarea>
             <br/>
             <br/>
             <button onClick={props.clickHandler}>Remove</button>
         </div>
+
     )
+    
 }
 
-
-export default Job;
+export default ProjectDesc;

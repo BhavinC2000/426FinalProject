@@ -3,30 +3,31 @@ import React, {useState} from "react";
 
 const Skills = () => {
 
-    const [inputList, setInputList] = useState([]);
+    const [skillsList, setSkillsList] = useState([]);
 
     const handleAddClick = (event) => {
-        setInputList([...inputList, {skill: ''}]);
+        setSkillsList([...skillsList, {skill: '', id: Date.now()}]);
     }
 
     const handleRemoveClick = (event, index) => {
-        const list = [...inputList];
+        const list = [...skillsList];
         list.splice(index, 1);
-        setInputList(list);
+        setSkillsList(list);
     }
 
     const handleChange = (event, i) => {
-        inputList[i]["skill"] = event.target.value;
+        skillsList[i]["skill"] = event.target.value;
     }
 
     return (
         <div>
             <h4>Skills</h4>
             <button onClick={handleAddClick}>Add</button>
-            {inputList.map((job, i) => {
+            {skillsList.map((job, idx) => {
                 return (
-                <div>
-                    <input onChange={() => handleChange(i)}/>
+                <div key={job.id}>
+                    <input onChange={(event) => handleChange(event, idx)}/>
+                    <button onClick={(event) => handleRemoveClick(event, idx)}>Remove</button>
                 </div>
                 )
             }

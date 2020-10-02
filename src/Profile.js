@@ -33,7 +33,7 @@ const Profile = () => {
     let $imagePreview = null;
 
     if (picState.imagePreviewUrl) {
-    $imagePreview = (<img id="container" src={picState.imagePreviewUrl} alt={picState.imagePreviewUrl}/>);
+    $imagePreview = (<img className="container" src={picState.imagePreviewUrl} alt={picState.imagePreviewUrl}/>);
     } else {
     $imagePreview = (<img src="./blank.png" alt="Add profile pic"/>);
     }
@@ -49,11 +49,11 @@ const Profile = () => {
     return (
         <div className="section">
             <h1>Profile</h1>
-            <container>
+            <div>
                 <div className="imgPreview">
                 {$imagePreview}
                 </div>
-            </container>
+            </div>
             <form onSubmit={(e)=>_handleSubmit(e)}>
             <input className="fileInput" 
                 type="file" 
