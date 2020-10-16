@@ -1,6 +1,6 @@
 html, body {
   height: 100%;
-  background-color: dimgrey;
+  background-color: #4B9CD3;
 }
 
 .column {
@@ -28,7 +28,12 @@ html, body {
 .container{
   overflow:hidden;
   display: flex;
-align-items: center;
+  align-items: center;
+}
+
+.picture {
+  width: 100%;
+  overflow:hidden;
 }
 
 .description {
@@ -39,6 +44,7 @@ align-items: center;
 
 button {
   background-color: white;
+  margin: 5px;
   font-size: 15px;
   color: black;
   border: 2px solid dimgrey;
@@ -75,4 +81,23 @@ button:focus {
 
 textarea {
   resize: vertical;
+}
+
+form {
+  margin-top: 15%;
+  margin-left: 35%;
+}
+
+.sign-in {
+  width: 400px;
+  height: 50px;
+  font-size: large;
+}
+
+.err {
+  color: red;
+}
+
+.hide {
+  visibility: hidden;
 }

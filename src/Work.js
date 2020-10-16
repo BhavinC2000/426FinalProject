@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import Job from "./Job";
 
-const Work = () => {
+const Work = (props) => {
 
     const [inputList, setInputList] = useState([]);
 
@@ -47,34 +47,54 @@ const Work = () => {
         }
     }
 
-    return (
-        <div className="section">
-            <h1>Work Experience</h1>
-            <button onClick={handleAddClick}>Add</button>
-            {inputList.map((job, i) => {
-                return (
-                <div key={job.id} className="container">
-                    <div className="arrows">
-                        <button onClick={(event) => moveUp(event, i)}>Up</button>
-                        <br/>
-                        <button onClick={(event) => moveDown(event, i)}>Down</button>
+    if (props.edit) {
+        return (
+            <div className="section">
+                <h1>Work Experience</h1>
+                <button onClick={handleAddClick}>Add</button>
+                {inputList.map((job, i) => {
+                    return (
+                    <div key={job.id} className="container">
+                        <div className="arrows">
+                            <button onClick={(event) => moveUp(event, i)}>Up</button>
+                            <br/>
+                            <button onClick={(event) => moveDown(event, i)}>Down</button>
+                        </div>
+                        <div className="content">
+                            <Job 
+                                className="section"
+                                clickHandler={(event) => handleRemoveClick(event, i)}
+                                companyHandler={(event) => handleCompanyChange(event, i)}
+                                positionHandler={(event) => handlePositionChange(event, i)}
+                                descriptionHandler={(event) => handleDescriptionChange(event, i)}
+                                defVal={inputList[i]} />
+                        </div>
                     </div>
-                    <div className="content">
-                        <Job 
-                            className="section"
-                            clickHandler={(event) => handleRemoveClick(event, i)}
-                            companyHandler={(event) => handleCompanyChange(event, i)}
-                            positionHandler={(event) => handlePositionChange(event, i)}
-                            descriptionHandler={(event) => handleDescriptionChange(event, i)}
-                            defVal={inputList[i]} />
-                    </div>
-                </div>
-                )
-            }
+                    )
+                }
 
-            )}
-        </div>
-    )
+                )}
+            </div>
+        )
+    } else {
+        return (
+            <div className="section">
+                <h1>Work Experience</h1>
+                {inputList.map((job) => {
+                    return (
+                        <div key={job.id} className="section">
+                            <h3>{job.company}</h3>
+                            <h4>{job.position}</h4>
+                            <h4>{job.description}</h4>
+                        </div>
+                    )
+                })
+                }
+
+                
+            </div>
+        )
+    }
 
 }
 
