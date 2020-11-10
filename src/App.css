@@ -83,7 +83,7 @@ textarea {
   resize: vertical;
 }
 
-form {
+#portal {
   margin-top: 15%;
   margin-left: 35%;
 }
@@ -100,4 +100,59 @@ form {
 
 .hide {
   visibility: hidden;
+}
+
+.search {
+  float: right;
+  width: 200px;
+  margin-right: 16px;
+  font-size: 17px;
+}
+
+.searchBar{
+  width: 100%;
+  padding: 12px 20px;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+#autocomplete {
+  width: 200px;
+}
+
+li {
+  list-style: none;
+  background-color: rgba(253, 253, 253);
+  padding: 10px 15px 10px 25px;
+  border: 1px solid #CCC;
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.5);
+  box-sizing: border-box;
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+
+ul {
+  margin: 0 auto;
+  padding: 0;
+  max-height: 390px;
+  width: 100%;
+  overflow-y: auto;
+  border-left: none;
+  border-right: none;
+  position: absolute
+}
+
+.title {
+  font-weight: bolder;
+}
+
+.position {
+  font-weight: lighter;
+}
+
+.skill {
+  font-weight: lighter;
 }

@@ -6,7 +6,7 @@ const Skills = (props) => {
 
     return (
         <div>
-            <input onChange={props.changeHandler}/>
+            <input onChange={props.changeHandler} defaultValue={props.defVal.skill}/>
             <button onClick={props.removeHandler}>Remove</button>
         </div>
     )
