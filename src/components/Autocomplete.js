@@ -17,12 +17,13 @@ const FreeSolo = (props) => {
                 autoComplete="off"
                 onChange={(event) => changeHandler(event.target.value)}
                 />
-            <ul id="autocomplete">
+            <ul id="autocomplete" className="options">
                 {props.users
                     .filter(user => user.toLowerCase().includes(search.toLowerCase()))
                     .map((user, i) => {
                         return (
-                        <li 
+                        <li
+                            className="option"
                             key={i} 
                             onClick={event => {
                                     props.searchHandler(event, user);

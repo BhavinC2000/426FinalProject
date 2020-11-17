@@ -6,6 +6,7 @@ const Menu= (props) => {
     return (
         <div className="section">
             <button onClick={props.buttonHandler}>Home</button>
+            <button onClick={props.getJobs}>Jobs</button>
             {/* <button className="search_button" onClick={props.searchHandler}>Submit</button>
             <input className="search" type="text" placeholder="Search"/> */}
             <FreeSolo 

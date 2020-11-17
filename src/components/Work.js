@@ -39,9 +39,9 @@ const Work = (props) => {
                 {props.list.map((job) => {
                     return (
                         <div key={job.id} className="section">
-                            <h3 className="title">{job.company}</h3>
-                            <h4 className="position">{job.position}</h4>
-                            <h4 className="description_saved">{job.description}</h4>
+                            <h2 className="title">{job.company}</h2>
+                            <h3 className="position">{job.position}</h3>
+                            <p className="description_saved">{job.description}</p>
                         </div>
                     )
                 })

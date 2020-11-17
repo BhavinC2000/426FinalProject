@@ -109,8 +109,11 @@ textarea {
   font-size: 17px;
 }
 
-.searchBar{
+.searchBar {
   width: 100%;
+}
+
+input {
   padding: 12px 20px;
   display: inline-block;
   border: 1px solid #ccc;
@@ -122,7 +125,7 @@ textarea {
   width: 200px;
 }
 
-li {
+.option {
   list-style: none;
   background-color: rgba(253, 253, 253);
   padding: 10px 15px 10px 25px;
@@ -134,7 +137,7 @@ li {
 }
 
 
-ul {
+.options {
   margin: 0 auto;
   padding: 0;
   max-height: 390px;
@@ -155,4 +158,21 @@ ul {
 
 .skill {
   font-weight: lighter;
+}
+
+.description_saved {
+  white-space: pre-wrap;
+}
+
+.job_posting {
+  position: relative;
+  margin: 30px;
+}
+
+.logo{
+  max-width: 300px;
+  max-height: 100%;
+  position: absolute;
+  top: 8px;
+  right: 16px;
 }

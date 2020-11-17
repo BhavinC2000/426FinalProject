@@ -10,27 +10,29 @@ import Firebase from 'firebase/app';
 import "firebase/auth";
 import "firebase/storage";
 import "firebase/database"
+import Axios from 'axios';
 
 // import {useAuthState} from "react-firebase-hooks/auth";
 // import {useCollectionData} from "react-firebase-hooks/firestore";
 
 // Your web app's Firebase configuration
   // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  var firebaseConfig = {
-    apiKey: "AIzaSyCTjnjjD_pvjUKqx-YuqO4nHx0MdwMGmX0",
-    authDomain: "comp426-final-3da5e.firebaseapp.com",
-    databaseURL: "https://comp426-final-3da5e.firebaseio.com",
-    projectId: "comp426-final-3da5e",
-    storageBucket: "comp426-final-3da5e.appspot.com",
-    messagingSenderId: "467209345613",
-    appId: "1:467209345613:web:fe152bfe8a5053c7169a04",
-    measurementId: "G-NJ17HP93GH"
-  };
+var firebaseConfig = {
+  apiKey: "AIzaSyCTjnjjD_pvjUKqx-YuqO4nHx0MdwMGmX0",
+  authDomain: "comp426-final-3da5e.firebaseapp.com",
+  databaseURL: "https://comp426-final-3da5e.firebaseio.com",
+  projectId: "comp426-final-3da5e",
+  storageBucket: "comp426-final-3da5e.appspot.com",
+  messagingSenderId: "467209345613",
+  appId: "1:467209345613:web:fe152bfe8a5053c7169a04",
+  measurementId: "G-NJ17HP93GH"
+};
 // Initialize Firebase
 Firebase.initializeApp(firebaseConfig);
 const auth = Firebase.auth();
 const storage = Firebase.storage();
 const db = Firebase.database();
+
 
 const App = () => {
 
@@ -42,6 +44,7 @@ const App = () => {
 
   const [home, setHome] = useState(true);
 
+  const [jobList, setJobList] = useState();
   // Work
 
   const [inputList, setInputList] = useState([]);
@@ -57,6 +60,10 @@ const App = () => {
   const [name, setName] = useState({firstname: '', lastname: ''});
 
   const [skills, setSkills] = useState([]);
+
+  // Filter
+
+  const [lang, setLang] = useState('');
 
   let userMap = {};
   let users = []
@@ -89,7 +96,6 @@ const App = () => {
             // doc.data() will be undefined in this case
         }
       }).catch(function(error) {
-        console.log("No such document!");
         setInputList([]);
         setName({firstname: '', lastname: ''});
         setProjectList([]);
@@ -178,7 +184,7 @@ const App = () => {
   }
 
   const changeLastName = (event) => {
-      setName({firstname: name.firstname, lastname: event.target.value});
+    setName({firstname: name.firstname, lastname: event.target.value});
   }
 
   const goHome = (event) => {
@@ -194,6 +200,7 @@ const App = () => {
       }
     });
     setHome(true);
+    setJobList();
   }
 
   const search = (event, name) => {
@@ -210,6 +217,7 @@ const App = () => {
         }
       });
       setHome(false);
+      setJobList();
     } else {
       alert("Please save information")
     }
@@ -230,7 +238,6 @@ const App = () => {
       "state_changed",
       snapshot => {},
       error => {
-        console.log(error);
       },
       () => {
         storage
@@ -257,7 +264,6 @@ const App = () => {
   }
 
   const moveUp = (event, index, inputList, setList) => {
-      console.log(inputList);
       if (index !== 0) {
           const list = [...inputList];
           let temp = list[index];
@@ -279,6 +285,18 @@ const App = () => {
 
   const handleFieldChange = (event, list, index, key) => {
     list[index][key] = event.target.value;
+  }
+
+  const getJobs = async (event) => {
+    const result = await Axios({
+      method: 'GET',
+      url: `https://cors-anywhere.herokuapp.com/https://jobs.github.com/positions.json`,
+      params: {
+        description: lang
+      }
+    });
+    setJobList(result.data);
+    setHome(false);
   }
 
   if (!loggedIn) {
@@ -307,6 +325,7 @@ const App = () => {
         <div>
           <Menu 
             buttonHandler={goHome}
+            getJobs={getJobs}
             searchHandler={search}
             users={users}
             />
@@ -354,11 +373,50 @@ const App = () => {
           </div>
         </div>
       );
-    } else {
+    } else if (jobList) {
       return (
         <div>
           <Menu 
             buttonHandler={goHome}
+            getJobs={(event) => {
+              setLang('');
+              getJobs(event);
+            }}
+            searchHandler={search}
+            users={users}
+            />
+          <div className="section">
+            <h2>Filter(s):</h2>
+            <div onChange={(event) => setLang(event.target.value)}>
+              <input type="radio" value="java" name="lang" />Java
+              <input type="radio" value="python" name="lang" />Python
+              <input type="radio" value="html/css" name="lang" />HTML/CSS
+              <input type="radio" value="javascript" name="lang" />JavaScript
+              <input type="radio" value="sql" name="lang" />SQL
+              <input type="radio" value="ruby" name="lang" />Ruby
+            </div>
+            <button onClick={getJobs}>Apply</button>
+          </div>
+          {jobList.map((job) => {
+            return (
+              <div className="section" key={job.id}>
+                  <div className="job_posting">
+                    <h1>Company: {job.company}</h1>
+                    <img className="logo" src={job.company_logo} alt={job.company + " Logo"}></img>
+                    <a href={job.url}>Link to Posting</a>
+                  </div>
+                  <div dangerouslySetInnerHTML={{__html: job.description}} />
+              </div>
+          )
+          })}
+        </div>
+      )
+    } else {
+      return (
+        <div>
+            <Menu 
+            buttonHandler={goHome}
+            getJobs={getJobs}
             searchHandler={search}
             users={users}
             />
