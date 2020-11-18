@@ -196,20 +196,22 @@ const App = () => {
   }
 
   const goHome = (event) => {
-    db.ref("users/" + user).once('value').then(function (doc) {
-      if (doc) {
-        let data = doc.val();
-        setName(data.name);
-        data.work ? setInputList(data.work) : setInputList([]);
-        data.leadership ? setLeadershipList(data.leadership) : setLeadershipList([]);
-        data.projects ? setProjectList(data.projects) : setProjectList([]);
-        data.skills ? setSkills(data.skills) : setSkills([]);
-        data.picURL ? setPicState(data.picURL) : setPicState('')
-        setEdit(false);
-      }
-    });
-    setHome(true);
-    setJobList();
+    if (!home) {
+      db.ref("users/" + user).once('value').then(function (doc) {
+        if (doc) {
+          let data = doc.val();
+          setName(data.name);
+          data.work ? setInputList(data.work) : setInputList([]);
+          data.leadership ? setLeadershipList(data.leadership) : setLeadershipList([]);
+          data.projects ? setProjectList(data.projects) : setProjectList([]);
+          data.skills ? setSkills(data.skills) : setSkills([]);
+          data.picURL ? setPicState(data.picURL) : setPicState('')
+          setEdit(false);
+        }
+      });
+      setHome(true);
+      setJobList();
+    }
   }
 
   const search = (event, name) => {
@@ -219,6 +221,7 @@ const App = () => {
           let data = doc.val();
           setName(data.name);
           data.work ? setInputList(data.work) : setInputList([]);
+          data.leadership ? setLeadershipList(data.leadership) : setLeadershipList([]);
           data.projects ? setProjectList(data.projects) : setProjectList([]);
           data.skills ? setSkills(data.skills) : setSkills([]);
           data.picURL ? setPicState(data.picURL) : setPicState('')
@@ -228,7 +231,7 @@ const App = () => {
       setHome(false);
       setJobList();
     } else {
-      alert("Please save information")
+      alert("Please save information");
     }
   }
   
@@ -297,15 +300,19 @@ const App = () => {
   }
 
   const getJobs = async (event) => {
-    const result = await Axios({
-      method: 'GET',
-      url: `https://cors-anywhere.herokuapp.com/https://jobs.github.com/positions.json`,
-      params: {
-        description: lang
-      }
-    });
-    setJobList(result.data);
-    setHome(false);
+    if (!edit) {
+      const result = await Axios({
+        method: 'GET',
+        url: `https://cors-anywhere.herokuapp.com/https://jobs.github.com/positions.json`,
+        params: {
+          description: lang
+        }
+      });
+      setJobList(result.data);
+      setHome(false);
+    } else {
+      alert("Please save information");
+    }
   }
 
   if (!loggedIn) {
@@ -464,7 +471,16 @@ const App = () => {
                 handleRemoveClick={handleRemoveClick}
                 handleFieldChange={handleFieldChange}
                 />
-              <Activities edit={edit}/>
+              <Activities
+                edit={edit}
+                list={leadershipList}
+                setList={setLeadershipList}
+                handleAddClick={handleAddClick}
+                moveUp={moveUp}
+                moveDown={moveDown}
+                handleRemoveClick={handleRemoveClick}
+                handleFieldChange={handleFieldChange}
+                />
               <Projects
                 edit={edit}
                 list={projectList}
