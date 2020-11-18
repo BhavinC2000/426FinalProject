@@ -39,8 +39,8 @@ const Projects = (props) => {
                 {props.list.map((job) => {
                     return (
                         <div key={job.id} className="section">
-                            <h3>{job.title}</h3>
-                            <h4>{job.description}</h4>
+                            <h2>{job.title}</h2>
+                            <p className="description_saved">{job.description}</p>
                         </div>
                     )
                 })

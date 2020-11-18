@@ -61,6 +61,10 @@ const App = () => {
 
   const [skills, setSkills] = useState([]);
 
+  // Leadership
+
+  const [leadershipList, setLeadershipList] = useState([]);
+
   // Filter
 
   const [lang, setLang] = useState('');
@@ -89,6 +93,7 @@ const App = () => {
           let data = doc.val();
           data.name ? setName(data.name) : setName({firstname: '', lastname: ''})
           data.work ? setInputList(data.work) : setInputList([]);
+          data.leadership ? setLeadershipList(data.leadership) : setLeadershipList([]);
           data.projects ? setProjectList(data.projects) : setProjectList([]);
           data.skills ? setSkills(data.skills) : setSkills([]);
           data.picURL ? setPicState(data.picURL) : setPicState('')
@@ -98,6 +103,7 @@ const App = () => {
       }).catch(function(error) {
         setInputList([]);
         setName({firstname: '', lastname: ''});
+        setLeadershipList([]);
         setProjectList([]);
         setSkills([]);
         setPicState('')
@@ -115,6 +121,7 @@ const App = () => {
       db.ref('users/' + user).set({
         name: name,
         work: inputList,
+        leadership: leadershipList,
         projects: projectList,
         skills: skills,
         picURL: picState
@@ -153,6 +160,7 @@ const App = () => {
         db.ref("users/" + user).set({
           name: name,
           work: inputList,
+          leadership: leadershipList,
           projects: projectList,
           skills: skills,
           picURL: picState
@@ -193,6 +201,7 @@ const App = () => {
         let data = doc.val();
         setName(data.name);
         data.work ? setInputList(data.work) : setInputList([]);
+        data.leadership ? setLeadershipList(data.leadership) : setLeadershipList([]);
         data.projects ? setProjectList(data.projects) : setProjectList([]);
         data.skills ? setSkills(data.skills) : setSkills([]);
         data.picURL ? setPicState(data.picURL) : setPicState('')
@@ -355,7 +364,16 @@ const App = () => {
                 handleRemoveClick={handleRemoveClick}
                 handleFieldChange={handleFieldChange}
                 />
-              <Activities edit={edit}/>
+              <Activities
+                edit={edit}
+                list={leadershipList}
+                setList={setLeadershipList}
+                handleAddClick={handleAddClick}
+                moveUp={moveUp}
+                moveDown={moveDown}
+                handleRemoveClick={handleRemoveClick}
+                handleFieldChange={handleFieldChange}
+                />
               <Projects
                 edit={edit}
                 list={projectList}
