@@ -1,11 +1,11 @@
 import React, {useEffect, useState} from 'react';
 import './App.css';
-import Work from "./components/Work";
-import Activities from "./components/Activities";
-import Projects from "./components/Projects";
-import Profile from "./components/Profile";
-import Button from './components/Button';
-import Menu from './components/Menu'
+import Work from "./Work";
+import Activities from "./Activities";
+import Projects from "./Projects";
+import Profile from "./Profile";
+import Button from './Button';
+import Menu from './Menu'
 import Firebase from 'firebase/app';
 import "firebase/auth";
 import "firebase/storage";
