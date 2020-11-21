@@ -297,7 +297,7 @@ const App = () => {
     if (!edit) {
       const result = await Axios({
         method: 'GET',
-        url: `https://jobs.github.com/positions.json`,
+        url: `https://cors-anywhere.herokuapp.com/https://jobs.github.com/positions.json`,
         params: {
           description: lang
         }
