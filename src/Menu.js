@@ -2,7 +2,7 @@ import React from "react";
 import FreeSolo from "./Autocomplete";
 
 const Menu= (props) => {
-
+    
     return (
         <div className="section">
             <button onClick={props.buttonHandler}>Home</button>

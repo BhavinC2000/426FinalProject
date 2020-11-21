@@ -13,11 +13,6 @@ import "firebase/storage";
 import "firebase/database"
 import Axios from 'axios';
 
-// import {useAuthState} from "react-firebase-hooks/auth";
-// import {useCollectionData} from "react-firebase-hooks/firestore";
-
-// Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 var firebaseConfig = {
   apiKey: "AIzaSyCTjnjjD_pvjUKqx-YuqO4nHx0MdwMGmX0",
   authDomain: "comp426-final-3da5e.firebaseapp.com",
@@ -34,15 +29,8 @@ const auth = Firebase.auth();
 const storage = Firebase.storage();
 const db = Firebase.database();
 
-const renderStates = {
-  PROFILE: 'profile',
-  JOB: 'job',
-  LOGIN: 'login'
-}
 
 const App = () => {
-
-  const [render, setRender] = useState(renderStates.LOGIN);
 
   const [user, setUser] = useState(null);
 
@@ -80,6 +68,16 @@ const App = () => {
   let userMap = {};
   let users = []
 
+  auth.onAuthStateChanged(firebaseUser => {
+    if (firebaseUser) {
+      setUser(firebaseUser.uid);
+      setLoggedIn(true);
+    } else {
+      setLoggedIn(false);
+      setHome(true);
+    }
+  })
+
   useEffect(() => {
     db.ref("users/").once('value').then(function (doc) {
       let data = doc.val();
@@ -95,7 +93,6 @@ const App = () => {
 
   useEffect(() => {
     if (user) {
-      // firestore.collection("users").doc(user).get().then( async function (doc) {
       db.ref("users/" + user).once('value').then(function (doc) {
         if (doc) {
           let data = doc.val();
@@ -106,7 +103,6 @@ const App = () => {
           data.skills ? setSkills(data.skills) : setSkills([]);
           data.picURL ? setPicState(data.picURL) : setPicState('')
           setEdit(false);
-            // doc.data() will be undefined in this case
         }
       }).catch(function(error) {
         setInputList([]);
@@ -143,10 +139,7 @@ const App = () => {
     const email = document.getElementById("txtEmail");
     const pass = document.getElementById("txtPass");
     const promise = auth.signInWithEmailAndPassword(email.value, pass.value);
-    promise.then(user => {
-      setRender(renderStates.PROFILE);
-      setUser(user.user.uid);
-    })
+    promise
       .catch(e => {
         let error = document.getElementById("error");
         error.classList.remove("hide");
@@ -160,7 +153,7 @@ const App = () => {
     const pass = document.getElementById("txtPass");
     const promise = auth.createUserWithEmailAndPassword(email.value, pass.value);
     promise
-      .then((user) => {
+      .then(() => {
         storage
           .ref("profile_pics")
           .child("blank.png")
@@ -168,7 +161,7 @@ const App = () => {
           .then(url => {
             setPicState(url)
           });
-        db.ref("users/" + user.user.uid).set({
+        db.ref("users/" + user).set({
           name: name,
           work: inputList,
           leadership: leadershipList,
@@ -176,8 +169,6 @@ const App = () => {
           skills: skills,
           picURL: picState
         })
-        setRender(renderStates.PROFILE);
-        setUser(user.user.uid);
       })
       .catch(e => {
         let error = document.getElementById("error");
@@ -187,8 +178,6 @@ const App = () => {
   }
 
   const logOut = (event) => {
-    setRender(renderStates.LOGIN);
-    setHome(true);
     Firebase.auth().signOut();
   }
 
@@ -202,17 +191,39 @@ const App = () => {
 
   const goHome = async (event) => {
     if (!home) {
-      setUser(auth.currentUser.uid);
+      db.ref("users/" + user).once('value').then(function (doc) {
+        if (doc) {
+          let data = doc.val();
+          setName(data.name);
+          data.work ? setInputList(data.work) : setInputList([]);
+          data.leadership ? setLeadershipList(data.leadership) : setLeadershipList([]);
+          data.projects ? setProjectList(data.projects) : setProjectList([]);
+          data.skills ? setSkills(data.skills) : setSkills([]);
+          data.picURL ? setPicState(data.picURL) : setPicState('')
+          setEdit(false);
+        }
+      });
       setHome(true);
-      setRender(renderStates.PROFILE);
+      setJobList();
     }
   }
 
   const search = (event, name) => {
     if (!edit) {
-      setUser(userMap[name]);
+      db.ref("users/" + userMap[name]).once('value').then(function (doc) {
+        if (doc) {
+          let data = doc.val();
+          setName(data.name);
+          data.work ? setInputList(data.work) : setInputList([]);
+          data.leadership ? setLeadershipList(data.leadership) : setLeadershipList([]);
+          data.projects ? setProjectList(data.projects) : setProjectList([]);
+          data.skills ? setSkills(data.skills) : setSkills([]);
+          data.picURL ? setPicState(data.picURL) : setPicState('')
+          setEdit(false);
+        }
+      });
       setHome(false);
-      setRender(renderStates.PROFILE);
+      setJobList();
     } else {
       alert("Please save information");
     }
@@ -286,40 +297,71 @@ const App = () => {
     if (!edit) {
       const result = await Axios({
         method: 'GET',
-        url: `https://cors-anywhere.herokuapp.com/https://jobs.github.com/positions.json`,
+        url: `https://jobs.github.com/positions.json`,
         params: {
           description: lang
         }
       });
       setJobList(result.data);
       setHome(false);
-      setRender(renderStates.JOB);
     } else {
       alert("Please save information");
     }
   }
 
+  if (!loggedIn) {
+    
+    return (
+      
+      <form id="portal">
 
-  switch(render){
-    case(renderStates.LOGIN):
-      return (
-        
-        <form id="portal">
+        <h4 id="error" className="err hide">Invalid Credentials</h4>
+        <input id="txtEmail" className="sign-in" placeholder="Email"></input>
+        <br/>
+        <br/>
+        <input type="password" id="txtPass" className="sign-in" placeholder="Password"></input>
+        <br/>
+        <br/>
+      
+        <button onClick={(event) => logIn(event)}>Log In</button>
+        <button onClick={(event) => signUp(event)}>Sign Up</button>
 
-          <h4 id="error" className="err hide">Invalid Credentials</h4>
-          <input id="txtEmail" className="sign-in" placeholder="Email"></input>
-          <br/>
-          <br/>
-          <input type="password" id="txtPass" className="sign-in" placeholder="Password"></input>
-          <br/>
-          <br/>
-        
-          <button onClick={(event) => logIn(event)}>Log In</button>
-          <button onClick={(event) => signUp(event)}>Sign Up</button>
+      </form>
+    );
 
-        </form>
-      );
-    case(renderStates.PROFILE):
+  } else if (jobList) {
+    return (
+      <div>
+        <Menu 
+          buttonHandler={goHome}
+          getJobs={getJobs()}
+          searchHandler={search}
+          users={users}
+          />
+        <div className="section">
+          <h2>Filter(s):</h2>
+          <div onChange={(event) => setLang(event.target.value)}>
+            <input type="radio" value="java" name="lang" />Java
+            <input type="radio" value="python" name="lang" />Python
+            <input type="radio" value="html/css" name="lang" />HTML/CSS
+            <input type="radio" value="javascript" name="lang" />JavaScript
+            <input type="radio" value="sql" name="lang" />SQL
+            <input type="radio" value="ruby" name="lang" />Ruby
+          </div>
+          <button onClick={getJobs}>Apply</button>
+        </div>
+        {jobList.map((job, i) => {
+            return (
+              <div key={i}>
+                <Posting
+                  job={job}
+                  />
+              </div>
+            )
+          })}
+      </div>
+    )
+  } else {
       return (
         <div>
           <Menu 
@@ -374,50 +416,16 @@ const App = () => {
                 handleRemoveClick={handleRemoveClick}
                 handleFieldChange={handleFieldChange}
                 />
-              {user === auth.currentUser.uid ? (<Button 
+              {home ? (<Button 
                 edit={edit}
                 changeLayout={changeLayout}/>
-                ) : (
-                 null
-                )}
+              ) : (
+                null
+              )}
               <button onClick={logOut}>Log Out</button>
           </div>
         </div>
       );
-    case(renderStates.JOB):
-      return (
-        <div>
-          <Menu 
-            buttonHandler={goHome}
-            getJobs={getJobs}
-            searchHandler={search}
-            users={users}
-            />
-          <div className="section">
-            <h2>Filter(s):</h2>
-            <div onChange={(event) => setLang(event.target.value)}>
-              <input type="radio" value="java" name="lang" />Java
-              <input type="radio" value="python" name="lang" />Python
-              <input type="radio" value="html/css" name="lang" />HTML/CSS
-              <input type="radio" value="javascript" name="lang" />JavaScript
-              <input type="radio" value="sql" name="lang" />SQL
-              <input type="radio" value="ruby" name="lang" />Ruby
-            </div>
-            <button onClick={getJobs}>Apply</button>
-          </div>
-          {jobList.map((job, i) => {
-            return (
-              <div key={i}>
-                <Posting
-                  job={job}
-                  />
-              </div>
-            )
-          })}
-        </div>
-      )
-    default:
-      return;
   }
 }
 
