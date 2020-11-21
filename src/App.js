@@ -5,7 +5,8 @@ import Activities from "./Activities";
 import Projects from "./Projects";
 import Profile from "./Profile";
 import Button from './Button';
-import Menu from './Menu'
+import Menu from './Menu';
+import Posting from './Posting';
 import Firebase from 'firebase/app';
 import "firebase/auth";
 import "firebase/storage";
@@ -28,7 +29,7 @@ var firebaseConfig = {
   measurementId: "G-NJ17HP93GH"
 };
 // Initialize Firebase
-Firebase.initializeApp(firebaseConfig);
+Firebase.initializeApp(firebaseConfig); 
 const auth = Firebase.auth();
 const storage = Firebase.storage();
 const db = Firebase.database();
@@ -195,7 +196,7 @@ const App = () => {
     setName({firstname: name.firstname, lastname: event.target.value});
   }
 
-  const goHome = (event) => {
+  const goHome = async (event) => {
     if (!home) {
       db.ref("users/" + user).once('value').then(function (doc) {
         if (doc) {
@@ -325,7 +326,7 @@ const App = () => {
         <input id="txtEmail" className="sign-in" placeholder="Email"></input>
         <br/>
         <br/>
-        <input id="txtPass" className="sign-in" placeholder="Password"></input>
+        <input type="password" id="txtPass" className="sign-in" placeholder="Password"></input>
         <br/>
         <br/>
       
@@ -404,7 +405,6 @@ const App = () => {
           <Menu 
             buttonHandler={goHome}
             getJobs={(event) => {
-              setLang('');
               getJobs(event);
             }}
             searchHandler={search}
@@ -424,15 +424,10 @@ const App = () => {
           </div>
           {jobList.map((job) => {
             return (
-              <div className="section" key={job.id}>
-                  <div className="job_posting">
-                    <h1>Company: {job.company}</h1>
-                    <img className="logo" src={job.company_logo} alt={job.company + " Logo"}></img>
-                    <a href={job.url}>Link to Posting</a>
-                  </div>
-                  <div dangerouslySetInnerHTML={{__html: job.description}} />
-              </div>
-          )
+              <Posting
+                job={job}
+                />
+            )
           })}
         </div>
       )

@@ -15,6 +15,11 @@ const ProjectDesc = (props) => {
             <textarea className="description" onChange={props.descriptionHandler} defaultValue={props.defVal.description}></textarea>
             <br/>
             <br/>
+            <label>URL/Link: </label>
+            <br/>
+            <input onChange={props.urlHandler} defaultValue={props.defVal.url}/>
+            <br/>
+            <br/>
             <button onClick={props.clickHandler}>Remove</button>
         </div>
 

@@ -12,9 +12,9 @@ const Work = (props) => {
                     return (
                     <div key={job.id} className="container">
                         <div className="arrows">
-                            <button onClick={(event) => props.moveUp(event, i, props.list, props.setList)}>Up</button>
+                            <button onClick={(event) => props.moveUp(event, i, props.list, props.setList)}>↑</button>
                             <br/>
-                            <button onClick={(event) => props.moveDown(event, i, props.list, props.setList)}>Down</button>
+                            <button onClick={(event) => props.moveDown(event, i, props.list, props.setList)}>↓</button>
                         </div>
                         <div className="content">
                             <Job 
