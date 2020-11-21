@@ -68,16 +68,6 @@ const App = () => {
   let userMap = {};
   let users = []
 
-  auth.onAuthStateChanged(firebaseUser => {
-    if (firebaseUser) {
-      setUser(firebaseUser.uid);
-      setLoggedIn(true);
-    } else {
-      setLoggedIn(false);
-      setHome(true);
-    }
-  })
-
   useEffect(() => {
     db.ref("users/").once('value').then(function (doc) {
       let data = doc.val();
@@ -116,23 +106,7 @@ const App = () => {
     }
   }, [user])
 
-  const changeLayout = (event) => {
-    if (edit) {
-      if (name.firstname === '' || name.lastname === '') {
-        alert("Please input your first and last name before saving")
-        return;
-      }
-      db.ref('users/' + user).set({
-        name: name,
-        work: inputList,
-        leadership: leadershipList,
-        projects: projectList,
-        skills: skills,
-        picURL: picState
-      })
-    }
-    setEdit(!edit);
-  }
+  // Log In
 
   const logIn = (event) => {
     event.preventDefault();
@@ -177,17 +151,21 @@ const App = () => {
       });
   }
 
+  auth.onAuthStateChanged(firebaseUser => {
+    if (firebaseUser) {
+      setUser(firebaseUser.uid);
+      setLoggedIn(true);
+    } else {
+      setLoggedIn(false);
+      setHome(true);
+    }
+  })
+
   const logOut = (event) => {
     Firebase.auth().signOut();
   }
 
-  const changeFirstName = (event) => {
-    setName({firstname: event.target.value, lastname: name.lastname});
-  }
-
-  const changeLastName = (event) => {
-    setName({firstname: name.firstname, lastname: event.target.value});
-  }
+  // Change Views
 
   const goHome = async (event) => {
     if (!home) {
@@ -228,7 +206,43 @@ const App = () => {
       alert("Please save information");
     }
   }
-  
+
+  const getJobs = async (event) => {
+    if (!edit) {
+      const result = await Axios({
+        method: 'GET',
+        url: `https://cors-anywhere.herokuapp.com/https://jobs.github.com/positions.json`,
+        params: {
+          description: lang
+        }
+      });
+      setJobList(result.data);
+      setHome(false);
+    } else {
+      alert("Please save information");
+    }
+  }
+
+  const changeLayout = (event) => {
+    if (edit) {
+      if (name.firstname === '' || name.lastname === '') {
+        alert("Please input your first and last name before saving")
+        return;
+      }
+      db.ref('users/' + user).set({
+        name: name,
+        work: inputList,
+        leadership: leadershipList,
+        projects: projectList,
+        skills: skills,
+        picURL: picState
+      })
+    }
+    setEdit(!edit);
+  }
+
+  // General Use Functions
+
   const _handleImageChange = (e) => {
     e.preventDefault();
 
@@ -257,7 +271,13 @@ const App = () => {
     );
   }
 
-  // General Use Functions
+  const changeFirstName = (event) => {
+    setName({firstname: event.target.value, lastname: name.lastname});
+  }
+
+  const changeLastName = (event) => {
+    setName({firstname: name.firstname, lastname: event.target.value});
+  }
 
   const handleAddClick = (event, setList, list, obj) => {
     setList([...list, obj]);
@@ -293,21 +313,6 @@ const App = () => {
     list[index][key] = event.target.value;
   }
 
-  const getJobs = async (event) => {
-    if (!edit) {
-      const result = await Axios({
-        method: 'GET',
-        url: `https://cors-anywhere.herokuapp.com/https://jobs.github.com/positions.json`,
-        params: {
-          description: lang
-        }
-      });
-      setJobList(result.data);
-      setHome(false);
-    } else {
-      alert("Please save information");
-    }
-  }
 
   if (!loggedIn) {
     
@@ -328,13 +333,14 @@ const App = () => {
 
       </form>
     );
-
   } else if (jobList) {
     return (
       <div>
         <Menu 
           buttonHandler={goHome}
-          getJobs={getJobs()}
+          getJobs={(event) => {
+            getJobs(event);
+          }}
           searchHandler={search}
           users={users}
           />
@@ -350,15 +356,15 @@ const App = () => {
           </div>
           <button onClick={getJobs}>Apply</button>
         </div>
-        {jobList.map((job, i) => {
-            return (
-              <div key={i}>
-                <Posting
-                  job={job}
-                  />
-              </div>
-            )
-          })}
+        {jobList.map((job) => {
+          return (
+            <div key={job.id}>
+              <Posting
+                job={job}
+                />
+            </div>
+          )
+        })}
       </div>
     )
   } else {
