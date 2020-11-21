@@ -34,8 +34,15 @@ const auth = Firebase.auth();
 const storage = Firebase.storage();
 const db = Firebase.database();
 
+const renderStates = {
+  PROFILE: 'profile',
+  JOB: 'job',
+  LOGIN: 'login'
+}
 
 const App = () => {
+
+  const [render, setRender] = useState(renderStates.LOGIN);
 
   const [user, setUser] = useState(null);
 
@@ -136,7 +143,10 @@ const App = () => {
     const email = document.getElementById("txtEmail");
     const pass = document.getElementById("txtPass");
     const promise = auth.signInWithEmailAndPassword(email.value, pass.value);
-    promise
+    promise.then(user => {
+      setRender(renderStates.PROFILE);
+      setUser(user.user.uid);
+    })
       .catch(e => {
         let error = document.getElementById("error");
         error.classList.remove("hide");
@@ -150,7 +160,7 @@ const App = () => {
     const pass = document.getElementById("txtPass");
     const promise = auth.createUserWithEmailAndPassword(email.value, pass.value);
     promise
-      .then(() => {
+      .then((user) => {
         storage
           .ref("profile_pics")
           .child("blank.png")
@@ -158,7 +168,7 @@ const App = () => {
           .then(url => {
             setPicState(url)
           });
-        db.ref("users/" + user).set({
+        db.ref("users/" + user.user.uid).set({
           name: name,
           work: inputList,
           leadership: leadershipList,
@@ -166,6 +176,8 @@ const App = () => {
           skills: skills,
           picURL: picState
         })
+        setRender(renderStates.PROFILE);
+        setUser(user.user.uid);
       })
       .catch(e => {
         let error = document.getElementById("error");
@@ -174,17 +186,9 @@ const App = () => {
       });
   }
 
-  auth.onAuthStateChanged(firebaseUser => {
-    if (firebaseUser) {
-      setUser(firebaseUser.uid);
-      setLoggedIn(true);
-    } else {
-      setLoggedIn(false);
-      setHome(true);
-    }
-  })
-
   const logOut = (event) => {
+    setRender(renderStates.LOGIN);
+    setHome(true);
     Firebase.auth().signOut();
   }
 
@@ -198,39 +202,17 @@ const App = () => {
 
   const goHome = async (event) => {
     if (!home) {
-      db.ref("users/" + user).once('value').then(function (doc) {
-        if (doc) {
-          let data = doc.val();
-          setName(data.name);
-          data.work ? setInputList(data.work) : setInputList([]);
-          data.leadership ? setLeadershipList(data.leadership) : setLeadershipList([]);
-          data.projects ? setProjectList(data.projects) : setProjectList([]);
-          data.skills ? setSkills(data.skills) : setSkills([]);
-          data.picURL ? setPicState(data.picURL) : setPicState('')
-          setEdit(false);
-        }
-      });
+      setUser(auth.currentUser.uid);
       setHome(true);
-      setJobList();
+      setRender(renderStates.PROFILE);
     }
   }
 
   const search = (event, name) => {
     if (!edit) {
-      db.ref("users/" + userMap[name]).once('value').then(function (doc) {
-        if (doc) {
-          let data = doc.val();
-          setName(data.name);
-          data.work ? setInputList(data.work) : setInputList([]);
-          data.leadership ? setLeadershipList(data.leadership) : setLeadershipList([]);
-          data.projects ? setProjectList(data.projects) : setProjectList([]);
-          data.skills ? setSkills(data.skills) : setSkills([]);
-          data.picURL ? setPicState(data.picURL) : setPicState('')
-          setEdit(false);
-        }
-      });
+      setUser(userMap[name]);
       setHome(false);
-      setJobList();
+      setRender(renderStates.PROFILE);
     } else {
       alert("Please save information");
     }
@@ -311,33 +293,33 @@ const App = () => {
       });
       setJobList(result.data);
       setHome(false);
+      setRender(renderStates.JOB);
     } else {
       alert("Please save information");
     }
   }
 
-  if (!loggedIn) {
-    
-    return (
-      
-      <form id="portal">
 
-        <h4 id="error" className="err hide">Invalid Credentials</h4>
-        <input id="txtEmail" className="sign-in" placeholder="Email"></input>
-        <br/>
-        <br/>
-        <input type="password" id="txtPass" className="sign-in" placeholder="Password"></input>
-        <br/>
-        <br/>
-      
-        <button onClick={(event) => logIn(event)}>Log In</button>
-        <button onClick={(event) => signUp(event)}>Sign Up</button>
+  switch(render){
+    case(renderStates.LOGIN):
+      return (
+        
+        <form id="portal">
 
-      </form>
-    );
+          <h4 id="error" className="err hide">Invalid Credentials</h4>
+          <input id="txtEmail" className="sign-in" placeholder="Email"></input>
+          <br/>
+          <br/>
+          <input type="password" id="txtPass" className="sign-in" placeholder="Password"></input>
+          <br/>
+          <br/>
+        
+          <button onClick={(event) => logIn(event)}>Log In</button>
+          <button onClick={(event) => signUp(event)}>Sign Up</button>
 
-  } else {
-    if (home) {
+        </form>
+      );
+    case(renderStates.PROFILE):
       return (
         <div>
           <Menu 
@@ -392,21 +374,22 @@ const App = () => {
                 handleRemoveClick={handleRemoveClick}
                 handleFieldChange={handleFieldChange}
                 />
-              <Button 
+              {user === auth.currentUser.uid ? (<Button 
                 edit={edit}
                 changeLayout={changeLayout}/>
+                ) : (
+                 null
+                )}
               <button onClick={logOut}>Log Out</button>
           </div>
         </div>
       );
-    } else if (jobList) {
+    case(renderStates.JOB):
       return (
         <div>
           <Menu 
             buttonHandler={goHome}
-            getJobs={(event) => {
-              getJobs(event);
-            }}
+            getJobs={getJobs}
             searchHandler={search}
             users={users}
             />
@@ -422,74 +405,19 @@ const App = () => {
             </div>
             <button onClick={getJobs}>Apply</button>
           </div>
-          {jobList.map((job) => {
+          {jobList.map((job, i) => {
             return (
-              <Posting
-                job={job}
-                />
+              <div key={i}>
+                <Posting
+                  job={job}
+                  />
+              </div>
             )
           })}
         </div>
       )
-    } else {
-      return (
-        <div>
-            <Menu 
-            buttonHandler={goHome}
-            getJobs={getJobs}
-            searchHandler={search}
-            users={users}
-            />
-            <div className="column left">
-            <Profile 
-              edit={edit}
-              name = {name}
-              skills = {skills}
-              setSkills = {setSkills}
-              picState={picState}
-              handleImageChange={_handleImageChange}
-              handleAddClick={handleAddClick}
-              handleRemoveClick={handleRemoveClick}
-              handleFieldChange={handleFieldChange}
-              changeFirstName={changeFirstName}
-              changeLastName={changeLastName}
-              />
-          </div>
-          <div className="column right">
-              <Work 
-                edit={edit}
-                list={inputList}
-                setList={setInputList}
-                handleAddClick={handleAddClick}
-                moveUp={moveUp}
-                moveDown={moveDown}
-                handleRemoveClick={handleRemoveClick}
-                handleFieldChange={handleFieldChange}
-                />
-              <Activities
-                edit={edit}
-                list={leadershipList}
-                setList={setLeadershipList}
-                handleAddClick={handleAddClick}
-                moveUp={moveUp}
-                moveDown={moveDown}
-                handleRemoveClick={handleRemoveClick}
-                handleFieldChange={handleFieldChange}
-                />
-              <Projects
-                edit={edit}
-                list={projectList}
-                setList={setProjectList}
-                handleAddClick={handleAddClick}
-                moveUp={moveUp}
-                moveDown={moveDown}
-                handleRemoveClick={handleRemoveClick}
-                handleFieldChange={handleFieldChange}
-                />
-            </div>
-        </div>
-      )
-    }
+    default:
+      return;
   }
 }
 
