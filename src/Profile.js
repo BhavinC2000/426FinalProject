@@ -4,22 +4,13 @@ import Skills from "./Skills";
 
 const Profile = (props) => {
 
-
-    let $imagePreview = null;
-
-    if (props.picState) {
-        $imagePreview = (<img className="picture" src={props.picState} alt={props.picState}/>);
-    } else {
-        $imagePreview = (<img src={props.picState} alt="Add profile pic"/>);
-    }
-
     if (props.edit) {
         return (
             <div className="section">
                 <h1>Profile</h1>
                 <div>
                     <div className="imgPreview">
-                        {$imagePreview}
+                        <img className="picture" src={props.picState} alt={props.picState ? props.picState : "Add profile pic"}/>
                     </div>
                 </div>
                     <input className="fileInput" 
@@ -56,7 +47,7 @@ const Profile = (props) => {
                 <h1>Profile</h1>
                 <div>
                     <div className="imgPreview">
-                    {$imagePreview}
+                    <img className="picture" src={props.picState} alt={props.picState ? props.picState : "Add profile pic"}/>
                     </div>
                     <h2>Name: {props.name.firstname} {props.name.lastname}</h2>
                     <h4>Skills:</h4>

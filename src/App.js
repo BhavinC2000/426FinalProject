@@ -223,7 +223,7 @@ const App = () => {
     }
   }
 
-  const changeLayout = (event) => {
+  const save = (event) => {
     if (edit) {
       if (name.firstname === '' || name.lastname === '') {
         alert("Please input your first and last name before saving")
@@ -424,7 +424,7 @@ const App = () => {
                 />
               {home ? (<Button 
                 edit={edit}
-                changeLayout={changeLayout}/>
+                changeLayout={save}/>
               ) : (
                 null
               )}
