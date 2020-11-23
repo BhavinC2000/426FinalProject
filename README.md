@@ -1,70 +1,113 @@
-# Getting Started with Create React App
+# Documentation
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Create Method
 
-## Available Scripts
+Our "signUp" method performs a "Create" operation. 
 
-In the project directory, you can run:
+```
+const signUp = (event) => {
+    event.preventDefault();
+    const email = document.getElementById("txtEmail");
+    const pass = document.getElementById("txtPass");
+    const promise = auth.createUserWithEmailAndPassword(email.value, pass.value);
+    promise
+      .then(() => {
+        storage
+          .ref("profile_pics")
+          .child("blank.png")
+          .getDownloadURL()
+          .then(url => {
+            setPicState(url)
+          });
+        db.ref("users/" + user).set({
+          name: name,
+          work: inputList,
+          leadership: leadershipList,
+          projects: projectList,
+          skills: skills,
+          picURL: picState
+        })
+      })
+      .catch(e => {
+        let error = document.getElementById("error");
+        error.classList.remove("hide");
+        error.innerHTML = e.message;
+      });
+  }
+```
 
-### `npm start`
+When a person signs up a new account, the Firebase's "createUserWithEmailAndPassword" method creates a new user with a User ID. Following that, we create a new page in the database that corresponds to said user.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Read Method
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+Our "goHome" and "search" methods perform a "Read" operation.
 
-### `npm test`
+```
+const goHome = async (event) => {
+    if (!home) {
+      db.ref("users/" + user).once('value').then(function (doc) {
+        if (doc) {
+          let data = doc.val();
+          setName(data.name);
+          data.work ? setInputList(data.work) : setInputList([]);
+          data.leadership ? setLeadershipList(data.leadership) : setLeadershipList([]);
+          data.projects ? setProjectList(data.projects) : setProjectList([]);
+          data.skills ? setSkills(data.skills) : setSkills([]);
+          data.picURL ? setPicState(data.picURL) : setPicState('')
+          setEdit(false);
+        }
+      });
+      setHome(true);
+      setJobList();
+    }
+  }
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+  const search = (event, name) => {
+    if (!edit) {
+      db.ref("users/" + userMap[name]).once('value').then(function (doc) {
+        if (doc) {
+          let data = doc.val();
+          setName(data.name);
+          data.work ? setInputList(data.work) : setInputList([]);
+          data.leadership ? setLeadershipList(data.leadership) : setLeadershipList([]);
+          data.projects ? setProjectList(data.projects) : setProjectList([]);
+          data.skills ? setSkills(data.skills) : setSkills([]);
+          data.picURL ? setPicState(data.picURL) : setPicState('')
+          setEdit(false);
+        }
+      });
+      setHome(false);
+      setJobList();
+    } else {
+      alert("Please save information");
+    }
+  }
+```
 
-### `npm run build`
+In both of these methods, when the main user chooses to view another profile or return to their home page (i.e. their website), we read the data on the associated database page and set the state of all variables to the corresponding information.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Update Method
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Our "save" method performs a "Update" operation.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```
+const save = (event) => {
+    if (edit) {
+      if (name.firstname === '' || name.lastname === '') {
+        alert("Please input your first and last name before saving")
+        return;
+      }
+      db.ref('users/' + user).set({
+        name: name,
+        work: inputList,
+        leadership: leadershipList,
+        projects: projectList,
+        skills: skills,
+        picURL: picState
+      })
+    }
+    setEdit(!edit);
+  }
+```
 
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+When a user chooses to save their personal website, we update the information on their database page to contain the most recently saved information.
