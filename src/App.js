@@ -212,6 +212,7 @@ const App = () => {
       const result = await Axios({
         method: 'GET',
         url: `https://cors-anywhere.herokuapp.com/https://jobs.github.com/positions.json`,
+        withCredientials: true,
         params: {
           description: lang
         }
@@ -422,13 +423,16 @@ const App = () => {
                 handleRemoveClick={handleRemoveClick}
                 handleFieldChange={handleFieldChange}
                 />
-              {home ? (<Button 
-                edit={edit}
-                changeLayout={save}/>
+              {home ? (
+                <div>
+                  <Button 
+                    edit={edit}
+                    changeLayout={save}/>
+                    <button onClick={logOut}>Log Out</button>
+                  </div>
               ) : (
                 null
               )}
-              <button onClick={logOut}>Log Out</button>
           </div>
         </div>
       );
