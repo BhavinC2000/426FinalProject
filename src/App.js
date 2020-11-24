@@ -428,8 +428,8 @@ const App = () => {
                   <Button 
                     edit={edit}
                     changeLayout={save}/>
-                    <button onClick={logOut}>Log Out</button>
-                  </div>
+                  <button onClick={logOut}>Log Out</button>
+                </div>
               ) : (
                 null
               )}
